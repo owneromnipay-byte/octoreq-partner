@@ -30,7 +30,7 @@ export default function ReferralsPage() {
                             .getReferrals();
 
                     setReferrals(
-                        response.data
+                        response
                     );
 
                 } catch (error) {
@@ -84,10 +84,10 @@ export default function ReferralsPage() {
                             font-bold
                             "
                         >
-                            {
-                                referrals?.referral_code ||
-                                "NOT AVAILABLE"
-                            }
+                           {
+    referrals?.referral_code ||
+    "NOT AVAILABLE"
+}
                         </p>
 
                         <button
@@ -131,8 +131,8 @@ export default function ReferralsPage() {
                     <p className="text-zinc-400 break-all">
 
                         {
-                            `https://partners.octoreq.com/register?ref=${referrals?.referral_code || ""}`
-                        }
+                        `https://portal.octoreq.com/register?ref=${referrals?.referral_code || ""
+                        }`}
 
                     </p>
 
