@@ -21,7 +21,7 @@ export default function MerchantsPage() {
                             .getMerchants();
 
                     setMerchants(
-                        response.data || []
+                        response || []
                     );
 
                 } catch (error) {
