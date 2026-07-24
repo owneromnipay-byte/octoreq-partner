@@ -6,11 +6,12 @@ class MerchantService {
 
         const response =
             await api.get(
-                "/referrals/merchants"
+                "/partner-merchants"
             );
 
         return response.data;
     }
 }
 
-export default new MerchantService();
+export default
+new MerchantService();

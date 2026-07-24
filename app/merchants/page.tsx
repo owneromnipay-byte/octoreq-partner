@@ -72,7 +72,7 @@ export default function MerchantsPage() {
 
                             <div
                                 key={
-                                    merchant.id
+                                    merchant.merchant_id
                                 }
 
                                 className="
@@ -83,11 +83,73 @@ export default function MerchantsPage() {
                                 "
                             >
 
-                                <h2>
+                                <h2
+                                    className="
+                                    font-semibold
+                                    "
+                                >
                                     {
-                                        merchant.company_name
+                                        merchant
+                                            .merchants
+                                            .company_name
                                     }
                                 </h2>
+
+                                <p
+                                    className="
+                                    text-zinc-400
+                                    text-sm
+                                    "
+                                >
+                                    {
+                                        merchant
+                                            .merchants
+                                            .email
+                                    }
+                                </p>
+
+                                <p
+                                    className="
+                                    text-zinc-500
+                                    text-xs
+                                    "
+                                >
+                                    {
+                                        merchant
+                                            .merchants
+                                            .country_code
+                                    }
+                                    {" • "}
+                                    {
+                                        new Date(
+                                            merchant
+                                                .merchants
+                                                .created_at
+                                        )
+                                        .toLocaleDateString()
+                                    }
+                                </p>
+
+                                <p
+                                    className="
+                                    text-green-500
+                                    text-xs
+                                    mt-1
+                                    "
+                                >
+                                    {
+                                        merchant
+                                            .is_active
+
+                                            ?
+
+                                            "ACTIVE"
+
+                                            :
+
+                                            "INACTIVE"
+                                    }
+                                </p>
 
                             </div>
                         )
