@@ -63,11 +63,20 @@ const items = [
         icon: Gift
     },
 
+{
+        name: "payouts",
+        href: "/payouts",
+        icon: Gift
+        
+    },
+
     {
         name: "Settings",
         href: "/settings",
         icon: Settings
-    }
+    },
+
+    
 ];
 
 export default function Sidebar() {
