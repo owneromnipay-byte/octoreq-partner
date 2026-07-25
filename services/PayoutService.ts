@@ -12,15 +12,22 @@ class PayoutService {
         return response.data;
     }
 
-    async requestPayout() {
+    async requestPayout(
+    amount: number
+) {
 
-        const response =
-            await api.post(
-                "/partner-payouts/request"
-            );
+    const response =
+        await api.post(
 
-        return response.data;
-    }
+            "/partner-payouts/request",
+
+            {
+                amount
+            }
+        );
+
+    return response.data;
+}
 }
 
 export default new PayoutService();
