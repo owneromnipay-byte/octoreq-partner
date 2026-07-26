@@ -1,5 +1,5 @@
 import { api } from "./api";
-
+import { PartnerApplication } from "@/types/partner";
 class PartnerService {
 
     async login(
@@ -59,6 +59,19 @@ class PartnerService {
 
         return response.data;
     }
+    async apply(
+        data: PartnerApplication
+    
+) {
+
+    const response =
+        await api.post(
+            "/partners/apply",
+            data
+        );
+
+    return response.data;
+}
 }
 
 export default

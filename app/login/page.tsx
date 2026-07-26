@@ -2,6 +2,7 @@
 
 import { useState }
 from "react";
+import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -196,7 +197,17 @@ export default function LoginPage() {
                         }
 
                     </button>
-
+                  <div className="mt-6 text-center">
+  <p className="text-sm text-zinc-400">
+    Don't have a Partner account?{" "}
+    <Link
+      href="/apply"
+      className="text-yellow-500 hover:underline font-medium"
+    >
+      Apply to become a partner
+    </Link>
+  </p>
+</div>
                 </form>
 
             </div>
