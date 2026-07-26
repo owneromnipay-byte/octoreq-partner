@@ -13,12 +13,23 @@ export default function AppShell({
 
     const pathname = usePathname();
 
-    const isLogin =
-        pathname === "/login";
+    const publicRoutes = [
+    "/login",
+    "/apply",
+    "/activate",
+    "/forgot-password",
+    "/reset-password",
+];
 
-    if (isLogin) {
-        return <>{children}</>;
-    }
+const isPublicRoute = publicRoutes.some(
+    (route) =>
+        pathname === route ||
+        pathname.startsWith(`${route}/`)
+);
+
+if (isPublicRoute) {
+    return <>{children}</>;
+}
 
     return (
         <div className="flex min-h-screen bg-black">
@@ -31,7 +42,7 @@ export default function AppShell({
 
                 <main className="
                 p-10
-                max-w-7x1">
+                max-w-7xl">
                     {children}
                 </main>
 
