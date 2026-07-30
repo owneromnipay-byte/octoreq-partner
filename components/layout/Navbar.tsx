@@ -2,27 +2,46 @@
 
 import { useEffect, useState } from "react";
 
-import PartnerService from "@/services/PartnerService";
+import { Menu } from "lucide-react";
 
+import { useAuth } from "@/hooks/useAuth";
 import { Partner } from "@/types/partner";
 
-export default function Navbar() {
+interface NavbarProps {
+    onMenuClick: () => void;
+}
+
+export default function Navbar({
+    onMenuClick,
+}: NavbarProps) {
+
+    const {
+        getPartner,
+        refreshPartner,
+    } = useAuth();
 
     const [partner, setPartner] =
         useState<Partner | null>(null);
 
     useEffect(() => {
 
+        const cachedPartner =
+            getPartner();
+
+        if (cachedPartner) {
+
+            setPartner(cachedPartner);
+
+        }
+
         const loadPartner = async () => {
 
             try {
 
-                const response =
-                    await PartnerService.getMe();
+                const updatedPartner =
+                    await refreshPartner();
 
-                setPartner(
-                    response.data
-                );
+                setPartner(updatedPartner);
 
             } catch (error) {
 
@@ -41,7 +60,7 @@ export default function Navbar() {
 
     return (
 
-        <div
+        <header
             className="
             h-20
             border-b
@@ -49,34 +68,65 @@ export default function Navbar() {
             flex
             items-center
             justify-between
-            px-8
+            px-4
+            sm:px-6
+            lg:px-8
             "
         >
 
-            <div>
+            <div
+                className="
+                flex
+                items-center
+                gap-4
+                min-w-0
+                "
+            >
 
-                <h2
+                <button
+                    onClick={onMenuClick}
                     className="
-                    text-2xl
-                    font-bold
-                    text-white
-                    "
-                >
-                    Merchant Partner Portal
-                </h2>
-
-                <p
-                    className="
-                    text-sm
+                    lg:hidden
                     text-zinc-400
-                    mt-1
+                    hover:text-white
+                    transition-colors
                     "
+                    aria-label="Open navigation menu"
                 >
-                    Welcome back
-                    {partner?.full_name
-                        ? `, ${partner.full_name}`
-                        : "..."}
-                </p>
+                    <Menu size={24} />
+                </button>
+
+                <div className="min-w-0">
+
+                    <h2
+                        className="
+                        text-xl
+                        sm:text-2xl
+                        font-bold
+                        text-white
+                        truncate
+                        "
+                    >
+                        Merchant Partner Portal
+                    </h2>
+
+                    <p
+                        className="
+                        hidden
+                        sm:block
+                        text-sm
+                        text-zinc-400
+                        mt-1
+                        truncate
+                        "
+                    >
+                        Welcome back
+                        {partner?.full_name
+                            ? `, ${partner.full_name}`
+                            : ""}
+                    </p>
+
+                </div>
 
             </div>
 
@@ -85,6 +135,7 @@ export default function Navbar() {
                 flex
                 items-center
                 gap-3
+                flex-shrink-0
                 "
             >
 
@@ -110,7 +161,8 @@ export default function Navbar() {
 
                 <div
                     className="
-                    flex
+                    hidden
+                    md:flex
                     flex-col
                     "
                 >
@@ -123,7 +175,7 @@ export default function Navbar() {
                     >
                         {
                             partner?.full_name ||
-                            "Loading..."
+                            "Partner"
                         }
                     </span>
 
@@ -144,7 +196,7 @@ export default function Navbar() {
 
             </div>
 
-        </div>
+        </header>
 
     );
 

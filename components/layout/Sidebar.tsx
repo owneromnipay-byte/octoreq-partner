@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-import {
-    usePathname,
-    useRouter
-} from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import {
     Home,
@@ -16,206 +12,255 @@ import {
     Bell,
     Gift,
     Settings,
-    LogOut
+    LogOut,
+    Landmark,
+    X,
 } from "lucide-react";
 
-const items = [
+import { useAuth } from "@/hooks/useAuth";
 
+const navigation = [
     {
         name: "Dashboard",
         href: "/dashboard",
-        icon: Home
+        icon: Home,
     },
-
     {
         name: "Merchants",
         href: "/merchants",
-        icon: Users
+        icon: Users,
     },
-
     {
         name: "Wallet",
         href: "/wallet",
-        icon: Wallet
+        icon: Wallet,
     },
-
     {
         name: "Commissions",
         href: "/commissions",
-        icon: DollarSign
+        icon: DollarSign,
     },
-
     {
         name: "Referrals",
         href: "/referrals",
-        icon: Link2
+        icon: Link2,
     },
-
     {
         name: "Notifications",
         href: "/notifications",
-        icon: Bell
+        icon: Bell,
     },
-
     {
         name: "Rewards",
         href: "/rewards",
-        icon: Gift
+        icon: Gift,
     },
-
-{
-        name: "payouts",
+    {
+        name: "Payouts",
         href: "/payouts",
-        icon: Gift
-        
+        icon: Landmark,
     },
-
     {
         name: "Settings",
         href: "/settings",
-        icon: Settings
+        icon: Settings,
     },
-
-    
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+    open: boolean;
+    onClose: () => void;
+}
 
-    const pathname =
-        usePathname();
+export default function Sidebar({
+    open,
+    onClose,
+}: SidebarProps) {
 
-    const router =
-        useRouter();
+    const pathname = usePathname();
 
-    const handleLogout =
-        () => {
-
-            localStorage.removeItem(
-                "token"
-            );
-
-            router.push(
-                "/login"
-            );
-        };
+    const { logout } = useAuth();
 
     return (
+        <>
+            {/* Mobile Overlay */}
 
-        <aside
-            className="
-            w-64
-            min-h-screen
-            bg-zinc-950
-            border-r
-            border-zinc-800
-            p-6
-            "
-        >
+            <div
+                onClick={onClose}
+                className={`
+                    fixed
+                    inset-0
+                    z-40
+                    bg-black/60
+                    transition-opacity
+                    duration-300
+                    lg:hidden
+                    ${
+                        open
+                            ? "opacity-100 visible"
+                            : "opacity-0 invisible"
+                    }
+                `}
+            />
 
-            <h1
-                className="
-                text-3xl
-                font-bold
-                text-yellow-500
-                mb-10
-                "
+            <aside
+                className={`
+                    fixed
+                    top-0
+                    left-0
+                    z-50
+                    h-screen
+                    w-64
+                    bg-zinc-950
+                    border-r
+                    border-zinc-800
+                    flex
+                    flex-col
+                    transition-transform
+                    duration-300
+
+                    ${
+                        open
+                            ? "translate-x-0"
+                            : "-translate-x-full"
+                    }
+
+                    lg:translate-x-0
+                    lg:static
+                    lg:z-auto
+                `}
             >
-                OCTOREQ
-            </h1>
 
-            <nav
-                className="
-                flex
-                flex-col
-                gap-3
-                "
-            >
+                <div
+                    className="
+                    flex
+                    items-center
+                    justify-between
+                    px-6
+                    py-8
+                    "
+                >
 
-                {
-                    items.map(
-                        (
-                            item
-                        ) => {
+                    <h1
+                        className="
+                        text-3xl
+                        font-bold
+                        text-yellow-500
+                        tracking-tight
+                        "
+                    >
+                        OCTOREQ
+                    </h1>
 
-                            const Icon =
-                                item.icon;
+                    <button
+                        onClick={onClose}
+                        className="
+                        lg:hidden
+                        text-zinc-400
+                        hover:text-white
+                        "
+                    >
+                        <X size={22} />
+                    </button>
 
-                            return (
+                </div>
 
-                                <Link
+                <nav
+                    className="
+                    flex-1
+                    px-4
+                    flex
+                    flex-col
+                    gap-2
+                    overflow-y-auto
+                    "
+                >
 
-                                    key={
-                                        item.name
-                                    }
+                    {navigation.map((item) => {
 
-                                    href={
-                                        item.href
-                                    }
+                        const Icon = item.icon;
 
-                                    className={`
+                        const active =
+                            pathname === item.href ||
+                            pathname.startsWith(
+                                `${item.href}/`
+                            );
+
+                        return (
+
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className={`
                                     flex
                                     items-center
                                     gap-3
-                                    p-4
                                     rounded-xl
-                                    transition
+                                    px-4
+                                    py-3
+                                    text-sm
+                                    font-medium
+                                    transition-all
 
                                     ${
-                                        pathname ===
-                                        item.href
-
-                                        ?
-
-                                        "bg-yellow-500 text-black"
-
-                                        :
-
-                                        "text-zinc-400 hover:bg-zinc-900"
+                                        active
+                                            ? "bg-yellow-500 text-black"
+                                            : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
                                     }
-                                    `}
-                                >
+                                `}
+                            >
 
-                                    <Icon
-                                        size={18}
-                                    />
+                                <Icon size={18} />
 
-                                    {
-                                        item.name
-                                    }
+                                <span>
+                                    {item.name}
+                                </span>
 
-                                </Link>
-                            );
-                        }
-                    )
-                }
+                            </Link>
 
-            </nav>
+                        );
 
-            <button
+                    })}
 
-                onClick={
-                    handleLogout
-                }
+                </nav>
 
-                className="
-                flex
-                items-center
-                gap-3
-                mt-10
-                text-red-500
-                hover:text-red-400
-                transition
-                "
-            >
+                <div
+                    className="
+                    p-4
+                    border-t
+                    border-zinc-800
+                    "
+                >
 
-                <LogOut
-                    size={18}
-                />
+                    <button
+                        onClick={logout}
+                        className="
+                        w-full
+                        flex
+                        items-center
+                        gap-3
+                        rounded-xl
+                        px-4
+                        py-3
+                        text-red-500
+                        hover:bg-red-500/10
+                        hover:text-red-400
+                        transition-all
+                        "
+                    >
 
-                Logout
+                        <LogOut size={18} />
 
-            </button>
+                        <span>
+                            Logout
+                        </span>
 
-        </aside>
+                    </button>
+
+                </div>
+
+            </aside>
+        </>
     );
+
 }

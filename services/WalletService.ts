@@ -1,16 +1,18 @@
 import { api } from "./api";
+import { Wallet }  from "@/types/wallet";
 
 class WalletService {
 
-    async getWallet() {
+    async getWallet(): Promise<Wallet> {
 
-        const response =
-            await api.get(
-                "/partner-wallet"
-            );
+        const response = await api.get<Wallet>(
+            "/partner-wallet"
+        );
 
         return response.data;
+
     }
+
 }
 
 export default new WalletService();

@@ -1,64 +1,49 @@
 "use client";
 
-import { useState }
-from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
 
-
 export default function LoginPage() {
 
-    const {
-        login
-    } = useAuth();
+    const { login } = useAuth();
 
-    const [
-        email,
-        setEmail
-    ] = useState("");
+    const [email, setEmail] = useState("");
 
-    const [
-        password,
-        setPassword
-    ] = useState("");
+    const [password, setPassword] = useState("");
 
-    const [
-        loading,
-        setLoading
-    ] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit =
-        async (
-            e: React.FormEvent
-        ) => {
+    const handleSubmit = async (
+        e: React.FormEvent
+    ) => {
 
-            e.preventDefault();
+        e.preventDefault();
 
-            try {
+        try {
 
-                setLoading(
-                    true
-                );
+            setLoading(true);
 
-                await login(
-                    email,
-                    password
-                );
+            await login(
+                email.trim(),
+                password
+            );
 
-            } catch {
+        } catch (error: any) {
 
-                alert(
-                    "Invalid credentials."
-                );
+            alert(
+                error.response?.data?.message ??
+                "Unable to sign in."
+            );
 
-            } finally {
+        } finally {
 
-                setLoading(
-                    false
-                );
-            }
-        };
+            setLoading(false);
+
+        }
+
+    };
 
     return (
 
@@ -69,6 +54,7 @@ export default function LoginPage() {
             items-center
             justify-center
             bg-black
+            px-6
             "
         >
 
@@ -77,10 +63,10 @@ export default function LoginPage() {
                 w-full
                 max-w-md
                 bg-zinc-900
-                p-10
-                rounded-2xl
                 border
                 border-zinc-800
+                rounded-2xl
+                p-10
                 "
             >
 
@@ -105,113 +91,101 @@ export default function LoginPage() {
                 </p>
 
                 <form
-                    onSubmit={
-                        handleSubmit
-                    }
-                    className="
-                    space-y-4
-                    "
+                    onSubmit={handleSubmit}
+                    className="space-y-4"
                 >
 
                     <input
+                        required
+                        disabled={loading}
                         type="email"
                         placeholder="Email"
-
-                        value={
-                            email
+                        value={email}
+                        onChange={(e) =>
+                            setEmail(
+                                e.target.value
+                            )
                         }
-
-                        onChange={
-                            (
-                                e
-                            ) =>
-                                setEmail(
-                                    e
-                                        .target
-                                        .value
-                                )
-                        }
-
                         className="
                         w-full
-                        p-4
                         rounded-xl
+                        p-4
                         bg-zinc-950
                         border
                         border-zinc-800
                         text-white
+                        disabled:opacity-60
                         "
                     />
 
                     <input
+                        required
+                        disabled={loading}
                         type="password"
                         placeholder="Password"
-
-                        value={
-                            password
+                        value={password}
+                        onChange={(e) =>
+                            setPassword(
+                                e.target.value
+                            )
                         }
-
-                        onChange={
-                            (
-                                e
-                            ) =>
-                                setPassword(
-                                    e
-                                        .target
-                                        .value
-                                )
-                        }
-
                         className="
                         w-full
-                        p-4
                         rounded-xl
+                        p-4
                         bg-zinc-950
                         border
                         border-zinc-800
                         text-white
+                        disabled:opacity-60
                         "
                     />
 
                     <button
                         type="submit"
-
-                        disabled={
-                            loading
-                        }
-
+                        disabled={loading}
                         className="
                         w-full
-                        p-4
                         rounded-xl
+                        p-4
                         bg-yellow-500
                         text-black
                         font-semibold
+                        disabled:opacity-70
                         "
                     >
-
-                        {
-                            loading
-                                ? "Signing In..."
-                                : "Sign In"
-                        }
-
+                        {loading
+                            ? "Signing In..."
+                            : "Sign In"}
                     </button>
-                  <div className="mt-6 text-center">
-  <p className="text-sm text-zinc-400">
-    Don't have a Partner account?{" "}
-    <Link
-      href="/apply"
-      className="text-yellow-500 hover:underline font-medium"
-    >
-      Apply to become a partner
-    </Link>
-  </p>
-</div>
+
+                    <div className="mt-6 text-center">
+
+                        <p className="text-sm text-zinc-400">
+
+                            Don't have a Partner account?{" "}
+
+                            <Link
+                                href="/apply"
+                                className="
+                                text-yellow-500
+                                hover:underline
+                                font-medium
+                                "
+                            >
+                                Apply to become a partner
+                            </Link>
+
+                        </p>
+
+                    </div>
+
                 </form>
 
             </div>
 
         </main>
+
     );
+
 }

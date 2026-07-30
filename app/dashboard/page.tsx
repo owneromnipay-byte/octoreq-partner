@@ -1,14 +1,15 @@
 "use client";
-import StatsCard
-from "@/components/cards/StatsCard";
+
 import { useEffect, useState } from "react";
 
+import StatsCard from "@/components/cards/StatsCard";
 import PartnerService from "@/services/PartnerService";
+import { PartnerDashboard } from "@/types/dashboard";
 
 export default function DashboardPage() {
 
     const [dashboard, setDashboard] =
-        useState<any>(null);
+        useState<PartnerDashboard | null>(null);
 
     const [loading, setLoading] =
         useState(true);
@@ -21,8 +22,7 @@ export default function DashboardPage() {
                 try {
 
                     const response =
-                        await PartnerService
-                            .getDashboard();
+                        await PartnerService.getDashboard();
 
                     setDashboard(
                         response.data
@@ -31,20 +31,35 @@ export default function DashboardPage() {
                 } catch (error) {
 
                     console.error(
+                        "Failed to load dashboard:",
                         error
                     );
 
                 } finally {
 
-                    setLoading(
-                        false
-                    );
+                    setLoading(false);
+
                 }
+
             };
 
         fetchDashboard();
 
     }, []);
+
+    const formatCurrency = (
+        amount?: number
+    ) => {
+
+        return new Intl.NumberFormat(
+            "en-NG",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }
+        ).format(amount ?? 0);
+
+    };
 
     if (loading) {
 
@@ -52,57 +67,53 @@ export default function DashboardPage() {
 
             <div
                 className="
-                min-h-screen
-                bg-black
-                text-white
                 flex
                 items-center
                 justify-center
+                py-24
+                text-zinc-400
                 "
             >
-                Loading...
+                Loading dashboard...
             </div>
+
         );
+
     }
 
     return (
 
-        <main
-            className="
-            min-h-screen
-            bg-black
-            text-white
-            p-10
-            "
-        >
+        <>
 
-            <h1
-                className="
-                text-4xl
-                font-bold
-                mb-2
-                "
-            >
-                Welcome Back
-            </h1>
+            <div className="mb-10">
 
-            <p
-                className="
-                text-zinc-400
-                mb-10
-                "
-            >
-                {
-                    dashboard?.welcome
-                }
-            </p>
+                <h1
+                    className="
+                    text-4xl
+                    font-bold
+                    text-white
+                    "
+                >
+                    Dashboard
+                </h1>
+
+                <p
+                    className="
+                    text-zinc-400
+                    mt-2
+                    "
+                >
+                    {dashboard?.welcome}
+                </p>
+
+            </div>
 
             <div
                 className="
                 grid
                 grid-cols-1
                 md:grid-cols-2
-                lg:grid-cols-3
+                xl:grid-cols-3
                 gap-6
                 "
             >
@@ -110,107 +121,75 @@ export default function DashboardPage() {
                 <StatsCard
                     title="Partner Tier"
                     value={
-                        dashboard?.partner_tier
+                        dashboard?.partner_tier ??
+                        "-"
                     }
                 />
 
                 <StatsCard
                     title="Partner Score"
                     value={
-                        dashboard?.partner_score
+                        dashboard?.partner_score ??
+                        0
                     }
                 />
 
                 <StatsCard
                     title="Wallet Balance"
-                    value={`₦${dashboard?.wallet_balance}`}
+                    value={`₦${formatCurrency(
+                        dashboard?.wallet_balance
+                    )}`}
                 />
 
                 <StatsCard
                     title="Lifetime Earnings"
-                    value={`₦${dashboard?.lifetime_earnings}`}
+                    value={`₦${formatCurrency(
+                        dashboard?.lifetime_earnings
+                    )}`}
+                />
+
+                <StatsCard
+                    title="Revenue Generated"
+                    value={`₦${formatCurrency(
+                        dashboard?.revenue_generated
+                    )}`}
                 />
 
                 <StatsCard
                     title="Active Merchants"
                     value={
-                        dashboard?.active_merchants
+                        dashboard?.active_merchants ??
+                        0
                     }
-                />
-
-                <StatsCard
-                    title="Revenue Generated"
-                    value={`₦${dashboard?.revenue_generated}`}
                 />
 
                 <StatsCard
                     title="Referral Code"
                     value={
-                        dashboard?.referral_code
+                        dashboard?.referral_code ??
+                        "-"
                     }
                 />
 
                 <StatsCard
-    title="Next Reward"
-    value={
-        dashboard?.next_reward
-    }
-/>
+                    title="Next Reward"
+                    value={
+                        dashboard?.next_reward ??
+                        "No reward available"
+                    }
+                />
 
-<StatsCard
-    title="Pending Payout"
-    value="₦0"
-/>
-                
+                <StatsCard
+                    title="Pending Payout"
+                    value={`₦${formatCurrency(
+                        dashboard?.pending_payout
+                    )}`}
+                />
 
             </div>
 
-        </main>
+        </>
+
     );
-}
 
-function Card({
-
-    title,
-    value
-
-}: {
-
-    title: string;
-    value: any;
-
-}) {
-
-    return (
-
-        <div
-            className="
-            bg-zinc-900
-            border
-            border-zinc-800
-            rounded-2xl
-            p-6
-            "
-        >
-
-            <p
-                className="
-                text-zinc-400
-                mb-2
-                "
-            >
-                {title}
-            </p>
-
-            <h2
-                className="
-                text-2xl
-                font-bold
-                "
-            >
-                {value}
-            </h2>
-
-        </div>
-    );
 }

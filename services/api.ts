@@ -1,74 +1,69 @@
 import axios from "axios";
 
 export const api = axios.create({
-
     baseURL:
-        "https://api.octoreq.com/api",
+        process.env.NEXT_PUBLIC_API_URL,
+
+    timeout: 30000,
 
     headers: {
-
-        "Content-Type":
-            "application/json"
-    }
+        "Content-Type": "application/json",
+        Accept: "application/json",
+    },
 });
 
 api.interceptors.request.use(
 
     (config) => {
 
-        if (
-            typeof window !==
-            "undefined"
-        ) {
+        if (typeof window !== "undefined") {
 
-            const token =
-                localStorage
-                    .getItem(
-                        "token"
-                    );
+            const token = localStorage.getItem(
+                "octoreq_partner_token"
+            );
 
             if (token) {
 
                 config.headers.Authorization =
                     `Bearer ${token}`;
+
             }
+
         }
 
         return config;
+
     },
 
-    (error) => {
+    (error) => Promise.reject(error)
 
-        return Promise.reject(
-            error
-        );
-    }
 );
 
 api.interceptors.response.use(
 
-    (response) => {
-
-        return response;
-    },
+    (response) => response,
 
     (error) => {
 
         if (
-            error.response?.status ===
-            401
+            error.response?.status === 401 &&
+            typeof window !== "undefined"
         ) {
 
             localStorage.removeItem(
-                "token"
+                "octoreq_partner_token"
             );
 
-            window.location.href =
-                "/login";
+            localStorage.removeItem(
+                "octoreq_partner"
+            );
+
+            window.location.href = "/login";
+
         }
 
-        return Promise.reject(
-            error
-        );
+        return Promise.reject(error);
+
     }
+
 );

@@ -1,14 +1,9 @@
 import { api } from "./api";
+import { Reward } from "@/types/reward";
 
 class RewardService {
-
-    async getRewards() {
-
-        const response =
-            await api.get(
-                "/rewards"
-            );
-
+    async getRewards(): Promise<Reward[]> {
+        const response = await api.get<Reward[]>("/rewards");
         return response.data;
     }
 }

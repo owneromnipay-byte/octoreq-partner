@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import PayoutService from "@/services/PayoutService";
+import { Payout } from "@/types/payout";
 
 export default function PayoutsPage() {
 
@@ -10,27 +11,45 @@ export default function PayoutsPage() {
         useState("");
 
     const [payouts, setPayouts] =
-        useState<any[]>([]);
+        useState<Payout[]>([]);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [requesting, setRequesting] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+    const [success, setSuccess] =
+        useState("");
 
     const fetchPayouts =
         async () => {
 
             try {
 
-                const response =
+                const data =
                     await PayoutService
                         .getPayouts();
 
-                setPayouts(
-                    response.data || response
+                setPayouts(data);
+
+            } catch (err) {
+
+                console.error(err);
+
+                setError(
+                    "Unable to load payout history."
                 );
 
-            } catch (error) {
+            } finally {
 
-                console.error(
-                    error
-                );
+                setLoading(false);
+
             }
+
         };
 
     useEffect(() => {
@@ -42,184 +61,310 @@ export default function PayoutsPage() {
     const handlePayout =
         async () => {
 
+            setError("");
+            setSuccess("");
+
+            const payoutAmount =
+                Number(amount);
+
+            if (
+                !payoutAmount ||
+                payoutAmount < 25000
+            ) {
+
+                setError(
+                    "Minimum withdrawal amount is ₦25,000."
+                );
+
+                return;
+
+            }
+
             try {
 
-                await PayoutService
-                    .requestPayout(
-                        Number(
-                            amount
-                        )
+                setRequesting(true);
+
+                const response =
+                    await PayoutService
+                        .requestPayout(
+                            payoutAmount
+                        );
+
+                if (response.success) {
+
+                    setSuccess(
+                        "Your payout request has been submitted successfully."
                     );
 
-                alert(
-                    "Payout request submitted successfully."
-                );
+                    setAmount("");
 
-                setAmount("");
+                    fetchPayouts();
 
-                fetchPayouts();
+                }
 
-            } catch (error: any) {
+            } catch (err: any) {
 
-                alert(
-                    error?.response?.data
-                        ?.message ||
-                    "Unable to submit payout request."
-                );
+                const message =
+
+                    err?.response?.data?.message ||
+
+                    err?.message ||
+
+                    "Unable to submit payout request.";
+
+                setError(message);
+
+            } finally {
+
+                setRequesting(false);
+
             }
+
         };
+
+    if (loading) {
+
+        return (
+
+            <div className="flex justify-center py-20">
+
+                <p className="text-zinc-400">
+                    Loading payouts...
+                </p>
+
+            </div>
+
+        );
+
+    }
 
     return (
 
-        <div>
+        <div className="space-y-8">
 
-            <h1 className="
-                text-4xl
-                font-bold
-                text-white
-                mb-8
-            ">
-                Payouts
-            </h1>
+            <div>
 
-            <div className="
-                bg-zinc-900
-                border
-                border-zinc-800
-                rounded-2xl
-                p-6
-                mb-6
-            ">
+                <h1 className="text-4xl font-bold text-white">
 
-                <h2 className="
-                    text-white
-                    text-2xl
-                    mb-4
-                ">
+                    Payouts
+
+                </h1>
+
+                <p className="mt-2 text-zinc-400">
+
+                    Request withdrawals and track your payout history.
+
+                </p>
+
+            </div>
+
+            {error && (
+
+                <div className="rounded-2xl border border-red-900 bg-red-950/30 p-4">
+
+                    <p className="text-red-400">
+
+                        {error}
+
+                    </p>
+
+                </div>
+
+            )}
+
+            {success && (
+
+                <div className="rounded-2xl border border-green-900 bg-green-950/30 p-4">
+
+                    <p className="text-green-400">
+
+                        {success}
+
+                    </p>
+
+                </div>
+
+            )}
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+
+                <h2 className="text-2xl font-semibold text-white">
+
                     Request Payout
+
                 </h2>
 
-                <input
-                    type="number"
+                <p className="mt-2 text-sm text-zinc-400">
 
-                    placeholder=
-                        "Enter amount"
+                    Partner payouts are processed on the 30th of every month.
+                    Minimum withdrawal amount is ₦25,000.
 
-                    value={
-                        amount
-                    }
+                </p>
 
-                    onChange={
-                        (
-                            e
-                        ) =>
+                <div className="mt-6">
+
+                    <input
+
+                        type="number"
+
+                        min="25000"
+
+                        placeholder="Enter payout amount"
+
+                        value={amount}
+
+                        onChange={(e) =>
                             setAmount(
                                 e.target.value
                             )
-                    }
+                        }
 
-                    className="
-                        w-full
-                        bg-zinc-800
-                        text-white
-                        rounded-xl
-                        p-3
-                        mb-4
-                    "
-                />
+                        className="
+                            w-full
+                            rounded-xl
+                            border
+                            border-zinc-700
+                            bg-zinc-800
+                            p-3
+                            text-white
+                            outline-none
+                            focus:border-yellow-500
+                        "
+
+                    />
+
+                </div>
 
                 <button
 
-                    onClick={
-                        handlePayout
+                    onClick={handlePayout}
+
+                    disabled={
+                        requesting ||
+                        amount === ""
                     }
 
                     className="
+                        mt-6
+                        rounded-xl
                         bg-yellow-500
-                        text-black
                         px-6
                         py-3
-                        rounded-xl
                         font-semibold
+                        text-black
+                        transition
+                        hover:bg-yellow-400
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                     "
+
                 >
-                    Request Payout
+
+                    {requesting
+
+                        ? "Submitting..."
+
+                        : "Request Payout"}
+
                 </button>
 
             </div>
 
-            <div className="
-                bg-zinc-900
-                border
-                border-zinc-800
-                rounded-2xl
-                p-6
-            ">
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
 
-                <h2 className="
-                    text-white
-                    text-2xl
-                    mb-4
-                ">
+                <h2 className="text-2xl font-semibold text-white">
+
                     Payout History
+
                 </h2>
 
-                {
-                    payouts.length === 0
+                {payouts.length === 0 ? (
 
-                    ?
+                    <div className="py-10 text-center">
 
-                    <p className="
-                        text-zinc-400
-                    ">
-                        No payouts found.
-                    </p>
+                        <p className="text-zinc-400">
 
-                    :
+                            No payout requests yet.
 
-                    payouts.map(
-                        (
-                            payout: any
-                        ) => (
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    <div className="mt-6 space-y-4">
+
+                        {payouts.map((payout) => (
 
                             <div
 
-                                key={
-                                    payout.id
-                                }
+                                key={payout.id}
 
-                                className="
-                                    border-b
-                                    border-zinc-800
-                                    py-4
-                                    text-white
-                                "
+                                className="rounded-xl border border-zinc-800 bg-zinc-950 p-5"
+
                             >
 
-                                <p>
-                                    ₦
-                                    {
-                                        Number(
-                                            payout.amount
-                                        ).toLocaleString()
-                                    }
-                                </p>
+                                <div className="flex items-start justify-between">
 
-                                <p className="
-                                    text-zinc-400
-                                ">
-                                    {
-                                        payout.status
-                                    }
-                                </p>
+                                    <div>
+
+                                        <p className="text-2xl font-bold text-white">
+
+                                            ₦
+                                            {Number(
+                                                payout.amount
+                                            ).toLocaleString()}
+
+                                        </p>
+
+                                        <p className="mt-2 text-sm text-zinc-500">
+
+                                            {payout.processed_at
+
+                                                ? new Date(
+                                                      payout.processed_at
+                                                  ).toLocaleDateString()
+
+                                                : "Awaiting processing"}
+
+                                        </p>
+
+                                    </div>
+
+                                    <span
+
+                                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                            payout.status === "PAID"
+
+                                                ? "bg-green-500/10 text-green-400"
+
+                                                : payout.status === "APPROVED"
+
+                                                ? "bg-blue-500/10 text-blue-400"
+
+                                                : "bg-yellow-500/10 text-yellow-400"
+                                        }`}
+
+                                    >
+
+                                        {payout.status}
+
+                                    </span>
+
+                                </div>
 
                             </div>
-                        )
-                    )
-                }
+
+                        ))}
+
+                    </div>
+
+                )}
 
             </div>
 
         </div>
+
     );
+
 }

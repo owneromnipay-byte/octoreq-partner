@@ -1,112 +1,239 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import ReferralService from "@/services/ReferralService";
+import { Referral } from "@/types/referral";
 
 export default function ReferralsPage() {
 
     const [referrals, setReferrals] =
-        useState<any>(null);
+        useState<Referral | null>(null);
 
-    const copyCode = () => {
+    const [loading, setLoading] =
+        useState(true);
 
-        navigator
-            .clipboard
-            .writeText(
-                referrals?.referral_code ||
-                ""
-            );
-    };
+    const [error, setError] =
+        useState("");
+
+    const [copied, setCopied] =
+        useState(false);
 
     useEffect(() => {
 
-        const fetchReferrals =
-            async () => {
+        const fetchReferrals = async () => {
 
-                try {
+            try {
 
-                    const response =
-                        await ReferralService
-                            .getReferrals();
+                const data =
+                    await ReferralService.getReferrals();
 
-                    setReferrals(
-                        response
-                    );
+                setReferrals(data);
 
-                } catch (error) {
+            } catch (err) {
 
-                    console.error(
-                        error
-                    );
-                }
-            };
+                console.error(
+                    "Failed to load referrals:",
+                    err
+                );
+
+                setError(
+                    "Unable to load referral information."
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        };
 
         fetchReferrals();
 
     }, []);
 
+    const referralLink =
+        referrals?.referral_code
+            ? `https://portal.octoreq.com/register?ref=${referrals.referral_code}`
+            : "";
+
+    const copyCode = async () => {
+
+        if (!referrals?.referral_code) return;
+
+        try {
+
+            await navigator.clipboard.writeText(
+                referrals.referral_code
+            );
+
+            setCopied(true);
+
+            setTimeout(() => {
+
+                setCopied(false);
+
+            }, 2000);
+
+        } catch (err) {
+
+            console.error(
+                "Failed to copy referral code:",
+                err
+            );
+
+        }
+
+    };
+
+    if (loading) {
+
+        return (
+
+            <div
+                className="
+                flex
+                items-center
+                justify-center
+                py-24
+                text-zinc-400
+                "
+            >
+                Loading referrals...
+            </div>
+
+        );
+
+    }
+
+    if (error) {
+
+        return (
+
+            <div
+                className="
+                rounded-2xl
+                border
+                border-red-500/20
+                bg-red-500/10
+                p-6
+                text-red-300
+                "
+            >
+                {error}
+            </div>
+
+        );
+
+    }
+
     return (
 
-        <div>
+        <>
 
-            <h1 className="text-4xl font-bold text-white mb-8">
-                Referrals
-            </h1>
+            <div className="mb-8">
 
-            <div className="grid md:grid-cols-2 gap-6">
+                <h1
+                    className="
+                    text-3xl
+                    sm:text-4xl
+                    font-bold
+                    text-white
+                    "
+                >
+                    Referrals
+                </h1>
+
+                <p
+                    className="
+                    mt-2
+                    text-zinc-400
+                    "
+                >
+                    Share your referral code and invite new
+                    partners to join OCTOREQ.
+                </p>
+
+            </div>
+
+            <div
+                className="
+                grid
+                grid-cols-1
+                md:grid-cols-2
+                gap-6
+                "
+            >
 
                 <div
                     className="
-                    bg-zinc-900
                     rounded-2xl
                     border
                     border-zinc-800
+                    bg-zinc-900
                     p-6
                     "
                 >
 
-                    <h2 className="text-white text-xl mb-3">
+                    <h2
+                        className="
+                        text-xl
+                        font-semibold
+                        text-white
+                        mb-4
+                        "
+                    >
                         Referral Code
                     </h2>
 
                     <div
                         className="
                         flex
-                        items-center
+                        flex-col
+                        sm:flex-row
+                        sm:items-center
                         gap-4
                         "
                     >
 
                         <p
                             className="
-                            text-yellow-500
                             text-2xl
                             font-bold
+                            text-yellow-500
+                            break-all
                             "
                         >
-                           {
-    referrals?.referral_code ||
-    "NOT AVAILABLE"
-}
+                            {referrals?.referral_code ??
+                                "Not Available"}
                         </p>
 
                         <button
 
-                            onClick={
-                                copyCode
+                            onClick={copyCode}
+
+                            disabled={
+                                !referrals?.referral_code
                             }
 
                             className="
+                            rounded-lg
                             bg-yellow-500
-                            text-black
                             px-4
                             py-2
-                            rounded-lg
                             font-semibold
+                            text-black
+                            transition
+                            hover:opacity-90
+                            disabled:cursor-not-allowed
+                            disabled:opacity-50
                             "
                         >
 
-                            COPY
+                            {copied
+                                ? "Copied ✓"
+                                : "Copy"}
 
                         </button>
 
@@ -116,24 +243,33 @@ export default function ReferralsPage() {
 
                 <div
                     className="
-                    bg-zinc-900
                     rounded-2xl
                     border
                     border-zinc-800
+                    bg-zinc-900
                     p-6
                     "
                 >
 
-                    <h2 className="text-white text-xl mb-3">
+                    <h2
+                        className="
+                        text-xl
+                        font-semibold
+                        text-white
+                        mb-4
+                        "
+                    >
                         Referral Link
                     </h2>
 
-                    <p className="text-zinc-400 break-all">
-
-                        {
-                        `https://portal.octoreq.com/register?ref=${referrals?.referral_code || ""
-                        }`}
-
+                    <p
+                        className="
+                        break-all
+                        text-zinc-400
+                        "
+                    >
+                        {referralLink ||
+                            "Referral link unavailable."}
                     </p>
 
                 </div>
@@ -142,25 +278,59 @@ export default function ReferralsPage() {
 
             <div
                 className="
-                bg-zinc-900
+                mt-6
                 rounded-2xl
                 border
                 border-zinc-800
+                bg-zinc-900
                 p-6
-                mt-6
                 "
             >
 
-                <h2 className="text-white text-xl mb-4">
+                <h2
+                    className="
+                    text-2xl
+                    font-semibold
+                    text-white
+                    mb-4
+                    "
+                >
                     QR Code
                 </h2>
 
-                <p className="text-zinc-400">
-                    QR Code integration coming next.
-                </p>
+                <div
+                    className="
+                    rounded-xl
+                    border
+                    border-dashed
+                    border-zinc-700
+                    p-8
+                    text-center
+                    "
+                >
+
+                    <p className="text-zinc-300 font-medium">
+                        QR Code integration coming soon.
+                    </p>
+
+                    <p
+                        className="
+                        mt-2
+                        text-sm
+                        text-zinc-500
+                        "
+                    >
+                        Your personal referral QR code will
+                        appear here once the feature is
+                        enabled.
+                    </p>
+
+                </div>
 
             </div>
 
-        </div>
+        </>
+
     );
+
 }

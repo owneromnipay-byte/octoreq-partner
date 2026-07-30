@@ -1,5 +1,6 @@
 import { api } from "./api";
 import { PartnerApplication } from "@/types/partner";
+
 class PartnerService {
 
     async login(
@@ -7,16 +8,13 @@ class PartnerService {
         password: string
     ) {
 
-        const response =
-            await api.post(
-
-                "/partners/login",
-
-                {
-                    email,
-                    password
-                }
-            );
+        const response = await api.post(
+            "/partners/login",
+            {
+                email,
+                password,
+            }
+        );
 
         return response.data;
     }
@@ -26,53 +24,77 @@ class PartnerService {
         password: string
     ) {
 
-        const response =
-            await api.post(
+        const response = await api.post(
+            "/partners/activate-account",
+            {
+                email,
+                password,
+            }
+        );
 
-                "/partners/activate-account",
+        return response.data;
+    }
 
-                {
-                    email,
-                    password
-                }
-            );
+    async apply(
+        data: PartnerApplication
+    ) {
+
+        const response = await api.post(
+            "/partners/apply",
+            data
+        );
 
         return response.data;
     }
 
     async getMe() {
 
-        const response =
-            await api.get(
-                "/partners/me"
-            );
+        const response = await api.get(
+            "/partners/me"
+        );
 
         return response.data;
     }
 
     async getDashboard() {
 
-        const response =
-            await api.get(
-                "/partners/dashboard"
-            );
+        const response = await api.get(
+            "/partners/dashboard"
+        );
 
         return response.data;
     }
-    async apply(
-        data: PartnerApplication
-    
-) {
 
-    const response =
-        await api.post(
-            "/partners/apply",
-            data
+    async forgotPassword(
+        email: string
+    ) {
+
+        const response = await api.post(
+            "/partners/forgot-password",
+            {
+                email,
+            }
         );
 
-    return response.data;
-}
+        return response.data;
+    }
+
+    async resetPassword(
+        email: string,
+        password: string
+    ) {
+
+        const response = await api.post(
+            "/partners/reset-password",
+            {
+                email,
+                password,
+            }
+        );
+
+        return response.data;
+    }
+
 }
 
-export default
-new PartnerService();
+export default new PartnerService();

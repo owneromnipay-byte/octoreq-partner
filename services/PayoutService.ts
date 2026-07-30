@@ -1,33 +1,38 @@
 import { api } from "./api";
+import {
+    Payout,
+    PayoutRequestResponse
+} from "@/types/payout";
 
 class PayoutService {
 
-    async getPayouts() {
+    async getPayouts(): Promise<Payout[]> {
 
         const response =
-            await api.get(
+            await api.get<Payout[]>(
                 "/partner-payouts"
             );
 
         return response.data;
+
     }
 
     async requestPayout(
-    amount: number
-) {
+        amount: number
+    ): Promise<PayoutRequestResponse> {
 
-    const response =
-        await api.post(
+        const response =
+            await api.post<PayoutRequestResponse>(
+                "/partner-payouts/request",
+                {
+                    amount
+                }
+            );
 
-            "/partner-payouts/request",
+        return response.data;
 
-            {
-                amount
-            }
-        );
+    }
 
-    return response.data;
-}
 }
 
 export default new PayoutService();
